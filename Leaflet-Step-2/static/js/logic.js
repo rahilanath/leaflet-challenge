@@ -21,10 +21,12 @@ function createFeatures(earthquakeData, tetonicData) {
     onEachFeature: onEachFeature,
     pointToLayer: (feature, latlng) => {
       return new L.Circle(latlng, {
-        radius: feature.properties.mag*20000,
-        fillColor: depthColor(feature.properties),
+        radius: feature.properties.mag*25000,
+        fillColor: depthColor(feature.geometry.coordinates[2]),
+        fillOpacity: .75,
         stroke: true,
-        weight: 1 
+        color: "black",
+        weight: 1.5
       });
     }
   });
@@ -33,30 +35,39 @@ function createFeatures(earthquakeData, tetonicData) {
     onEachFeature: onEachFeature,
   });
 
-  function depthColor(depth) {
-    switch(depth) {
-      case depth <= 10: 
-        return "#16A085"
-      case depth <= 30:
-        return "#1ABC9C"
-      case depth <= 50:
-        return "#3498D8"
-      case depth <= 70:
-        return "#9B59B6"
-      case depth <= 90:
-        return "#E74C3C"
-      default:
-        return "#C0392B"
-    }
-  };
-
   createMap(earthquakes, tetonicPlates);
 }
 
+function depthColor(depth) {
+  if (depth <= 10) {
+    // console.log(depth + " <= 10")
+    return "green"
+  }
+  else if (depth <= 30) {
+    // console.log(depth + " <= 30")
+    return "lightgreen"
+  }
+  else if (depth <= 50) {
+    // console.log(depth + " <= 50")
+    return "yellow"
+  }
+  else if (depth <= 70) {
+    // console.log(depth + " <= 70")
+    return "orangered"
+  }
+  else if (depth <= 90) {
+    // console.log(depth + " <= 90")
+    return "red"
+  }
+  else {
+    return "darkred"
+  }
+};
+
 function createMap(earthquakes, tetonicPlates) {
 
-  var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+  var satellite = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
     tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
@@ -65,7 +76,7 @@ function createMap(earthquakes, tetonicPlates) {
   });
 
   var monochrome = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
     tileSize: 512,
     maxZoom: 18,
     zoomOffset: -1,
@@ -74,14 +85,14 @@ function createMap(earthquakes, tetonicPlates) {
   });
 
   var outdoors = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+    attribution: 'Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>',
     maxZoom: 18,
     id: "rahilanath/ckgrlinda0cli19lb83mttioo",
     accessToken: API_KEY
   });
 
   var baseMaps = {
-    "Satellite Map": satellitemap,
+    "Satellite Map": satellite,
     "Monochrome": monochrome,
     "Outdoors": outdoors
   };
@@ -95,11 +106,11 @@ function createMap(earthquakes, tetonicPlates) {
     center: [
       37.09, -95.71
     ],
-    zoom: 5,
-    layers: [satellitemap, earthquakes]
+    zoom: 4,
+    layers: [satellite, earthquakes, tetonicPlates]
   });
 
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: false
   }).addTo(myMap);
-}
+};
